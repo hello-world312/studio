@@ -42,5 +42,3 @@ export const createCalculatorSchema = (selectedDrug: Drug | null) => {
 export const defaultCalculatorSchema = createCalculatorSchema(null);
 
 export type CalculatorFormValues = z.infer<ReturnType<typeof createCalculatorSchema>>;
-
-```
