@@ -17,6 +17,7 @@ interface DrugReferenceData {
   maxDose: string;
 }
 
+// Data based on the provided HTML structure
 const drugReferenceTableData: DrugReferenceData[] = [
     {
         agent: 'Norepinephrine (noradrenaline)',
@@ -61,13 +62,14 @@ const drugReferenceTableData: DrugReferenceData[] = [
         maxDose: '0.75 mcg/kg/minute',
     },
       {
-    agent: 'Nitroglycerin (Glyceryl Trinitrate)',
+    agent: 'Nitroglycerin (Glyceryl Trinitrate)', // Added from drugData.ts if needed
     tradeName: 'Nitronal, Tridil',
     initialDose: '5 to 20 mcg/minute',
     maintenanceDose: '10 to 200 mcg/minute',
     maxDose: 'Up to 400 mcg/minute may be required in some cases',
   },
 ];
+
 
 const Footnotes: FC = () => (
   <div className="mt-6 text-sm text-muted-foreground space-y-3">
@@ -89,8 +91,7 @@ const Footnotes: FC = () => (
 
 export const DrugReferenceTable: FC = () => {
   return (
-    // The outer container div with overflow-auto is removed.
-    // Scrolling is now handled by the parent div in page.tsx.
+    // Removed the outer container div. Scrolling is handled by the parent.
     <div className="space-y-4">
         <Table>
         <TableHeader>

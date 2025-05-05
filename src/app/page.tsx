@@ -65,6 +65,9 @@ import {
 	CheckCircle,
 	Settings,
 	AlertCircle,
+    BookOpen,
+    EyeOff,
+    Eye,
 } from 'lucide-react';
 
 export default function ICUDoseCalcPage() {
@@ -198,7 +201,7 @@ export default function ICUDoseCalcPage() {
 	return (
 		<div className="min-h-screen bg-background text-foreground p-4 md:p-8">
             {/* Main Calculator Card */}
-			<Card className="max-w-2xl mx-auto shadow-lg rounded-lg border border-border overflow-hidden">
+			<Card className="max-w-2xl mx-auto shadow-lg rounded-lg border border-border overflow-hidden mb-8">
 				<CardHeader className="bg-primary text-primary-foreground p-4">
 					<div className="flex items-center gap-2">
 						{/* Syringe Icon SVG */}
@@ -515,42 +518,70 @@ export default function ICUDoseCalcPage() {
 						</div>
 					)}
 
-					{/* Safety Warning */}
-					<Alert variant="destructive" className="mt-8">
-						<AlertTriangle className="h-4 w-4" />
-						<AlertTitle className="font-semibold">Important Safety Notice</AlertTitle>
-						<AlertDescription className="text-xs leading-relaxed">
-							This calculator is intended as an educational and decision-support tool only. It is <strong>NOT</strong> a substitute for professional medical judgment, clinical assessment, or institutional protocols. Always double-check calculations, verify drug concentrations and doses with the prepared syringe, and confirm with institutional guidelines and a qualified healthcare professional before administering any medication. The creators are not liable for any errors or clinical decisions made based on this tool. Standard concentrations are based on typical Egyptian market availability but may vary. Dose ranges provided are typical but may need adjustment based on clinical context and institutional guidelines. <strong>Final verification by the prescribing physician and administering nurse is mandatory.</strong>
-						</AlertDescription>
-					</Alert>
+
 				</CardContent>
 				<CardFooter className="p-3 bg-muted/50 rounded-b-lg text-xs text-muted-foreground text-center border-t">
 					ICU DoseCalc | Verify all calculations before administration.
 				</CardFooter>
 			</Card>
 
-            {/* Drug Reference Section */}
-            <Card className="max-w-4xl mx-auto mt-8 shadow-lg rounded-lg border border-border overflow-hidden">
-                 <CardHeader className="bg-secondary text-secondary-foreground p-4">
-                     <CardTitle className="text-lg md:text-xl font-semibold">
-                         Vasopressor & Inotrope Reference
-                     </CardTitle>
-                     <CardDescription className="text-secondary-foreground/90 text-sm">
-                         Adult dose ranges and characteristics for common agents. Verify with local protocols.
-                     </CardDescription>
-                 </CardHeader>
-                 <CardContent className="p-0">
-                     {/* Add scrollable container with horizontal/vertical scroll and zoom */}
-                     <div className="overflow-auto touch-pan-x touch-pan-y" style={{ WebkitOverflowScrolling: 'touch' }}>
-                        <div className="p-4 min-w-[800px]"> {/* Ensure minimum width for table content */}
-                             <DrugReferenceTable />
+             {/* Safety Warning Section - Collapsible */}
+            <Accordion type="single" collapsible className="w-full max-w-2xl mx-auto mb-8">
+                <AccordionItem value="safety-notice" className="border border-destructive/50 rounded-lg overflow-hidden">
+                    <AccordionTrigger className="bg-destructive/10 hover:bg-destructive/20 px-4 py-3 text-destructive font-semibold hover:no-underline">
+                         <div className="flex items-center gap-2">
+                              <AlertTriangle className="h-5 w-5" />
+                              <span>Important Safety Notice</span>
+                         </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-4 bg-destructive/5">
+                        <Alert variant="destructive" className="border-0 p-0">
+                            {/* <AlertTriangle className="h-4 w-4" /> We can remove this one if the trigger has it */}
+                            {/* <AlertTitle className="font-semibold">Important Safety Notice</AlertTitle> */}
+                            <AlertDescription className="text-xs leading-relaxed text-destructive/90">
+                                This calculator is intended as an educational and decision-support tool only. It is <strong>NOT</strong> a substitute for professional medical judgment, clinical assessment, or institutional protocols. Always double-check calculations, verify drug concentrations and doses with the prepared syringe, and confirm with institutional guidelines and a qualified healthcare professional before administering any medication. The creators are not liable for any errors or clinical decisions made based on this tool. Standard concentrations are based on typical Egyptian market availability but may vary. Dose ranges provided are typical but may need adjustment based on clinical context and institutional guidelines. <strong>Final verification by the prescribing physician and administering nurse is mandatory.</strong>
+                            </AlertDescription>
+                        </Alert>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+
+
+            {/* Drug Reference Section - Collapsible */}
+            <Accordion type="single" collapsible className="w-full max-w-4xl mx-auto">
+                <AccordionItem value="drug-reference" className="border border-border rounded-lg overflow-hidden shadow-lg">
+                    <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-3 text-secondary-foreground font-semibold hover:no-underline">
+                        <div className="flex items-center gap-2">
+                            <BookOpen className="h-5 w-5" />
+                            <span>Vasopressor & Inotrope Reference</span>
                         </div>
-                     </div>
-                 </CardContent>
-                 <CardFooter className="p-3 bg-muted/50 rounded-b-lg text-xs text-muted-foreground text-center border-t">
-					Reference Data | Always consult official resources and local protocols.
-				</CardFooter>
-            </Card>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-0 bg-background">
+                         <Card className="border-0 rounded-none shadow-none">
+                            {/* <CardHeader className="bg-secondary text-secondary-foreground p-4">
+                                <CardTitle className="text-lg md:text-xl font-semibold">
+                                    Vasopressor & Inotrope Reference
+                                </CardTitle>
+                                <CardDescription className="text-secondary-foreground/90 text-sm">
+                                    Adult dose ranges and characteristics for common agents. Verify with local protocols.
+                                </CardDescription>
+                            </CardHeader> */}
+                            <CardContent className="p-0">
+                                {/* Add scrollable container with horizontal/vertical scroll and zoom */}
+                                <div className="overflow-auto touch-pan-x touch-pan-y" style={{ WebkitOverflowScrolling: 'touch' }}>
+                                    <div className="p-4 min-w-[800px]"> {/* Ensure minimum width for table content */}
+                                        <DrugReferenceTable />
+                                    </div>
+                                </div>
+                            </CardContent>
+                            <CardFooter className="p-3 bg-muted/50 rounded-b-lg text-xs text-muted-foreground text-center border-t">
+                                Reference Data | Always consult official resources and local protocols.
+                            </CardFooter>
+                        </Card>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+
 
 			{/* Toaster is already in layout.tsx */}
 		</div>
