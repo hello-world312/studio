@@ -25,17 +25,23 @@ export const createCalculatorSchema = (selectedDrug: Drug | null) => {
     ),
     doseUnit: z.string(), // Readonly, no validation needed as it's derived
     drugAmount: z.preprocess(
-        (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+        (val) => (val === '' || val === undefined || val === null ? 0 : Number(val)), // Default empty/null/undefined to 0
          z.number({ required_error: 'Drug amount is required.', invalid_type_error: 'Amount must be a number.' })
-          .positive({ message: 'Amount must be positive.' })
+          .min(0, { message: 'Amount cannot be negative.' }) // Allow 0 but not negative
     ),
     drugAmountUnit: z.enum(['mg', 'mcg', 'units'], { required_error: 'Amount unit is required.' }),
     drugVolume: z.preprocess(
-        (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+        (val) => (val === '' || val === undefined || val === null ? 0 : Number(val)), // Default empty/null/undefined to 0
          z.number({ required_error: 'Syringe volume is required.', invalid_type_error: 'Volume must be a number.' })
-          .positive({ message: 'Volume must be positive.' })
+          .min(0, { message: 'Volume cannot be negative.' }) // Allow 0 but not negative
           .int({ message: 'Volume must be a whole number.' }) // Typically syringe volumes are whole numbers
     ),
+  }).refine(data => data.drugAmount > 0 || data.drugVolume <= 0, { // If volume > 0, amount must be > 0
+      message: "Drug amount must be positive if volume is positive.",
+      path: ["drugAmount"],
+  }).refine(data => data.drugVolume > 0 || data.drugAmount <= 0, { // If amount > 0, volume must be > 0
+      message: "Syringe volume must be positive if drug amount is positive.",
+      path: ["drugVolume"],
   });
 };
 

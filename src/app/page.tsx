@@ -95,9 +95,9 @@ export default function ICUDoseCalcPage() {
 			weight: undefined,
 			dose: undefined,
 			doseUnit: '',
-			drugAmount: undefined, // Start undefined
+			drugAmount: 0, // Default to 0
 			drugAmountUnit: undefined, // Set initial undefined
-			drugVolume: undefined, // Start undefined
+			drugVolume: 0, // Default to 0
 		},
 	});
 
@@ -112,17 +112,17 @@ export default function ICUDoseCalcPage() {
 
 		// Reset fields when drug changes
 		if (drug) {
-            // Reset dependent fields and set new defaults
+            // Reset dependent fields and set new defaults based on selected drug
             setValue('doseUnit', drug.dosing.unit);
-            setValue('drugAmount', drug.standardFormulation.amount); // Set default amount
-            setValue('drugAmountUnit', drug.standardFormulation.unit);
-            setValue('drugVolume', drug.standardFormulation.volume); // Set default volume
+            setValue('drugAmount', drug.standardFormulation.amount); // Set standard amount
+            setValue('drugAmountUnit', drug.standardFormulation.unit); // Set standard unit
+            setValue('drugVolume', drug.standardFormulation.volume); // Set standard volume
             // Clear fields that need user input for the new drug
             setValue('dose', undefined);
             if (!drug.dosing.isWeightBased) {
                 setValue('weight', undefined); // Clear weight if not needed
             } else {
-                 // Keep weight if needed and already entered? This might be okay.
+                 // Keep weight if needed and already entered
                  setValue('weight', getValues('weight'));
             }
             // Clear previous results
@@ -132,16 +132,18 @@ export default function ICUDoseCalcPage() {
              // Trigger validation for potentially newly required fields or cleared fields
             trigger(['dose', 'weight', 'drugAmount', 'drugVolume', 'drugAmountUnit']);
 		} else {
-            // Clear everything if no drug is selected
+            // Clear everything if no drug is selected, reset prep fields to 0
             setValue('doseUnit', '');
-            setValue('drugAmount', undefined);
-            setValue('drugAmountUnit', undefined);
-            setValue('drugVolume', undefined);
+            setValue('drugAmount', 0); // Reset to 0
+            setValue('drugAmountUnit', undefined); // Clear unit
+            setValue('drugVolume', 0); // Reset to 0
             setValue('dose', undefined);
             setValue('weight', undefined);
             setCalculationResult(null);
             setFormulaUsed('');
             setDoseStatus(null);
+            // Trigger validation after reset
+             trigger(['dose', 'weight', 'drugAmount', 'drugVolume', 'drugAmountUnit']);
         }
 
 	}, [watchedDrug, setValue, trigger, getValues]);
@@ -156,6 +158,16 @@ export default function ICUDoseCalcPage() {
 				const drugAmount = data.drugAmount!;
 				const drugAmountUnit = data.drugAmountUnit!;
 				const drugVolume = data.drugVolume!;
+
+                // Add check for zero values which are invalid for calculation
+                if (drugAmount <= 0 || drugVolume <= 0) {
+                     toast({
+                        title: 'Invalid Preparation',
+                        description: 'Drug amount and syringe volume must be positive numbers.',
+                        variant: 'destructive',
+                    });
+                    return; // Stop submission
+                }
 
 
 				const calculation = selectedDrug.calculateRate(
@@ -398,14 +410,14 @@ export default function ICUDoseCalcPage() {
                                                         <Input
                                                             type="number"
                                                             step="any"
-                                                            // placeholder={`Std: ${selectedDrug.standardFormulation.amount}`} // Removed placeholder
                                                             placeholder="e.g. 4" // Generic placeholder
                                                             {...field}
-                                                            value={field.value ?? ''} // Controlled
+                                                            value={field.value ?? 0} // Controlled, default to 0 if null/undefined
                                                             onChange={(e) => {
                                                                 const value = e.target.value;
-                                                                // Convert empty string to undefined
-                                                                field.onChange(value === '' ? undefined : parseFloat(value));
+                                                                // Ensure it's treated as a number, allow empty string to mean 0 for input, but store as number
+                                                                const numericValue = value === '' ? 0 : parseFloat(value);
+                                                                field.onChange(isNaN(numericValue) ? 0 : numericValue); // Set to 0 if NaN
                                                             }}
                                                         />
                                                     </FormControl>
@@ -422,7 +434,8 @@ export default function ICUDoseCalcPage() {
                                                     <FormLabel className="text-xs">Unit</FormLabel>
                                                     <Select
                                                         onValueChange={field.onChange}
-                                                        value={field.value} // Controlled component
+                                                        value={field.value ?? ''} // Handle undefined case for Select
+                                                        // defaultValue={selectedDrug.standardFormulation.unit} // Set default based on drug
                                                     >
                                                         <FormControl>
                                                             <SelectTrigger>
@@ -455,14 +468,14 @@ export default function ICUDoseCalcPage() {
                                                         <Input
                                                             type="number"
                                                             step="1"
-                                                            // placeholder={`Std: ${selectedDrug.standardFormulation.volume}`} // Removed placeholder
                                                             placeholder="e.g. 50" // Generic placeholder
                                                             {...field}
-                                                             value={field.value ?? ''} // Controlled
+                                                            value={field.value ?? 0} // Controlled, default to 0 if null/undefined
                                                             onChange={(e) => {
                                                                 const value = e.target.value;
-                                                                // Convert empty string to undefined
-                                                                field.onChange(value === '' ? undefined : parseInt(value, 10));
+                                                                 // Ensure it's treated as a number, allow empty string to mean 0 for input, but store as number
+                                                                const numericValue = value === '' ? 0 : parseInt(value, 10);
+                                                                field.onChange(isNaN(numericValue) ? 0 : numericValue); // Set to 0 if NaN
                                                             }}
                                                         />
                                                     </FormControl>
