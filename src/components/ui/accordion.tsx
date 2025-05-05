@@ -1,8 +1,9 @@
+
 "use client"
 
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronDown } from "lucide-react"
+// Removed ChevronDown import as it's no longer used directly here
 
 import { cn } from "@/lib/utils"
 
@@ -14,7 +15,8 @@ const AccordionItem = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AccordionPrimitive.Item
     ref={ref}
-    className={cn("border-b", className)}
+    // Adjusted border style: remove border-b and apply it conditionally or let the parent handle it
+    className={cn("", className)} // Removed border-b
     {...props}
   />
 ))
@@ -28,13 +30,14 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+        // Removed justify-between and icon rotation styles
+        "flex flex-1 items-center py-4 font-medium transition-all",
         className
       )}
       {...props}
     >
       {children}
-      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+      {/* ChevronDown icon removed from here */}
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ))

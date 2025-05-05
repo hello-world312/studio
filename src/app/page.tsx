@@ -57,15 +57,12 @@ import { useToast } from '@/hooks/use-toast';
 import { DrugReferenceTable } from '@/components/DrugReferenceTable'; // Import the new component
 import {
 	Calculator,
-	Syringe,
 	Scale,
 	Gauge,
 	Info,
 	FlaskConical,
 	AlertTriangle,
 	CheckCircle,
-	Settings,
-	AlertCircle,
     BookOpen,
     EyeOff,
     Eye,
@@ -98,9 +95,9 @@ export default function ICUDoseCalcPage() {
 			weight: undefined,
 			dose: undefined,
 			doseUnit: '',
-			drugAmount: undefined,
+			drugAmount: undefined, // Start undefined
 			drugAmountUnit: undefined, // Set initial undefined
-			drugVolume: undefined, // Use standard formulation volume as default later
+			drugVolume: undefined, // Start undefined
 		},
 	});
 
@@ -117,9 +114,9 @@ export default function ICUDoseCalcPage() {
 		if (drug) {
             // Reset dependent fields and set new defaults
             setValue('doseUnit', drug.dosing.unit);
-            setValue('drugAmount', drug.standardFormulation.amount); // Sets default amount
+            setValue('drugAmount', drug.standardFormulation.amount); // Set default amount
             setValue('drugAmountUnit', drug.standardFormulation.unit);
-            setValue('drugVolume', drug.standardFormulation.volume); // Reset to standard volume
+            setValue('drugVolume', drug.standardFormulation.volume); // Set default volume
             // Clear fields that need user input for the new drug
             setValue('dose', undefined);
             if (!drug.dosing.isWeightBased) {
@@ -401,7 +398,8 @@ export default function ICUDoseCalcPage() {
                                                         <Input
                                                             type="number"
                                                             step="any"
-                                                            placeholder={`Std: ${selectedDrug.standardFormulation.amount}`}
+                                                            // placeholder={`Std: ${selectedDrug.standardFormulation.amount}`} // Removed placeholder
+                                                            placeholder="e.g. 4" // Generic placeholder
                                                             {...field}
                                                             value={field.value ?? ''} // Controlled
                                                             onChange={(e) => {
@@ -457,7 +455,8 @@ export default function ICUDoseCalcPage() {
                                                         <Input
                                                             type="number"
                                                             step="1"
-                                                            placeholder={`Std: ${selectedDrug.standardFormulation.volume}`}
+                                                            // placeholder={`Std: ${selectedDrug.standardFormulation.volume}`} // Removed placeholder
+                                                            placeholder="e.g. 50" // Generic placeholder
                                                             {...field}
                                                              value={field.value ?? ''} // Controlled
                                                             onChange={(e) => {
@@ -537,12 +536,12 @@ export default function ICUDoseCalcPage() {
              {/* Safety Warning Section - Collapsible */}
             <Accordion type="single" collapsible className="w-full max-w-2xl mx-auto mb-8">
                 <AccordionItem value="safety-notice" className="border border-destructive/50 rounded-lg overflow-hidden">
-                    <AccordionTrigger className="bg-destructive/10 hover:bg-destructive/20 px-4 py-3 text-destructive font-semibold hover:no-underline">
-                         <div className="flex items-center gap-2">
-                              <AlertTriangle className="h-5 w-5" />
-                              <span>Important Safety Notice</span>
-                               <Eye className="h-4 w-4 ml-auto group-data-[state=closed]:hidden" />
-                               <EyeOff className="h-4 w-4 ml-auto group-data-[state=open]:hidden" />
+                    <AccordionTrigger className="bg-destructive/10 hover:bg-destructive/20 px-4 py-3 text-destructive font-semibold hover:no-underline group"> {/* Added group class */}
+                         <div className="flex items-center gap-2 w-full"> {/* Ensure full width */}
+                              <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+                              <span className="flex-grow text-left">Important Safety Notice</span> {/* Make text take available space */}
+                               <Eye className="h-4 w-4 ml-auto flex-shrink-0 group-data-[state=closed]:hidden" /> {/* Use ml-auto and flex-shrink */}
+                               <EyeOff className="h-4 w-4 ml-auto flex-shrink-0 group-data-[state=open]:hidden" />
                          </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-4 bg-destructive/5">
@@ -559,12 +558,12 @@ export default function ICUDoseCalcPage() {
             {/* Drug Reference Section - Collapsible */}
             <Accordion type="single" collapsible className="w-full max-w-4xl mx-auto mb-8"> {/* Added mb-8 for spacing */}
                 <AccordionItem value="drug-reference" className="border border-border rounded-lg overflow-hidden shadow-lg">
-                    <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-3 text-secondary-foreground font-semibold hover:no-underline">
-                        <div className="flex items-center gap-2">
-                            <BookOpen className="h-5 w-5" />
-                            <span>Vasopressor & Inotrope Reference</span>
-                            <Eye className="h-4 w-4 ml-auto group-data-[state=closed]:hidden" />
-                            <EyeOff className="h-4 w-4 ml-auto group-data-[state=open]:hidden" />
+                    <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-3 text-secondary-foreground font-semibold hover:no-underline group"> {/* Added group class */}
+                        <div className="flex items-center gap-2 w-full"> {/* Ensure full width */}
+                            <BookOpen className="h-5 w-5 flex-shrink-0" />
+                            <span className="flex-grow text-left">Vasopressor & Inotrope Reference</span> {/* Make text take available space */}
+                            <Eye className="h-4 w-4 ml-auto flex-shrink-0 group-data-[state=closed]:hidden" /> {/* Use ml-auto and flex-shrink */}
+                            <EyeOff className="h-4 w-4 ml-auto flex-shrink-0 group-data-[state=open]:hidden" />
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-0 bg-background">
