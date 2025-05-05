@@ -1,4 +1,3 @@
-// src/components/DrugReferenceTable.tsx
 import type { FC } from 'react'; // Use type import
 import {
   Table,
@@ -9,7 +8,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { AlertTriangle } from 'lucide-react';
 
 interface DrugReferenceData {
   agent: string;
@@ -91,23 +89,23 @@ const Footnotes: FC = () => (
 
 export const DrugReferenceTable: FC = () => {
   return (
-    // Remove the outer container div with overflow-auto, as the parent DialogContent now handles scrolling.
-    // The `Table` component from shadcn/ui includes a div with `overflow-auto` internally.
+    // The outer container div with overflow-auto is removed.
+    // Scrolling is now handled by the parent div in page.tsx.
     <div className="space-y-4">
         <Table>
         <TableHeader>
             <TableRow>
-            <TableHead className="min-w-[150px]">Agent</TableHead>
-            <TableHead className="min-w-[120px]">US Trade Name</TableHead>
-            <TableHead className="min-w-[180px]">Initial Dose</TableHead>
-            <TableHead className="min-w-[180px]">Usual Maintenance Dose Range</TableHead>
-            <TableHead className="min-w-[180px]">Max Dose (Refractory Shock)</TableHead>
+            <TableHead className="min-w-[150px] font-semibold">Agent</TableHead>
+            <TableHead className="min-w-[120px] font-semibold">US Trade Name</TableHead>
+            <TableHead className="min-w-[180px] font-semibold">Initial Dose</TableHead>
+            <TableHead className="min-w-[180px] font-semibold">Usual Maintenance Dose Range</TableHead>
+            <TableHead className="min-w-[180px] font-semibold">Max Dose (Refractory Shock)</TableHead>
             </TableRow>
         </TableHeader>
         <TableBody>
             {drugReferenceTableData.map((drug) => (
             <TableRow key={drug.agent}>
-                <TableCell className="font-medium align-top"><strong>{drug.agent}</strong></TableCell>
+                <TableCell className="font-medium align-top">{drug.agent}</TableCell>
                 <TableCell className="align-top">{drug.tradeName}</TableCell>
                 <TableCell className="whitespace-pre-line align-top">{drug.initialDose}</TableCell>
                 <TableCell className="whitespace-pre-line align-top">{drug.maintenanceDose}</TableCell>

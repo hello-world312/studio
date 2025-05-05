@@ -51,10 +51,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-// Removed ScrollArea import as we'll use a simple div for scrolling
-// import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import { DrugReferenceTable } from '@/components/DrugReferenceTable'; // Import the new component
 import {
@@ -68,7 +65,6 @@ import {
 	CheckCircle,
 	Settings,
 	AlertCircle,
-	BookOpen, // Import BookOpen icon
 } from 'lucide-react';
 
 export default function ICUDoseCalcPage() {
@@ -201,43 +197,15 @@ export default function ICUDoseCalcPage() {
 
 	return (
 		<div className="min-h-screen bg-background text-foreground p-4 md:p-8">
+            {/* Main Calculator Card */}
 			<Card className="max-w-2xl mx-auto shadow-lg rounded-lg border border-border overflow-hidden">
 				<CardHeader className="bg-primary text-primary-foreground p-4">
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-2">
-							{/* Syringe Icon SVG */}
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-accent"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/></svg>
-							<CardTitle className="text-xl md:text-2xl font-bold">
-								ICU DoseCalc
-							</CardTitle>
-						</div>
-                        {/* Drug Reference Table Dialog Trigger */}
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    className="bg-primary-foreground/10 hover:bg-primary-foreground/20 border-primary-foreground/50 text-primary-foreground"
-                                >
-                                    <BookOpen className="mr-1.5 h-4 w-4" /> Reference
-                                </Button>
-                            </DialogTrigger>
-                             {/* Adjusted DialogContent for better scrolling/zooming on mobile */}
-                             <DialogContent className="max-w-none w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] h-[90vh] flex flex-col p-0">
-                                <DialogHeader className="p-6 pb-4">
-                                    <DialogTitle>Vasopressor & Inotrope Reference</DialogTitle>
-                                    <DialogDescription>
-                                        Adult dose ranges and characteristics for common agents. Verify with local protocols.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                {/* Replace ScrollArea with a div for overflow */}
-                                <div className="flex-grow overflow-auto p-6 pt-0">
-                                    {/* The DrugReferenceTable component already has internal overflow handling for the table itself */}
-                                    <DrugReferenceTable />
-                                </div>
-                            </DialogContent>
-                        </Dialog>
+					<div className="flex items-center gap-2">
+						{/* Syringe Icon SVG */}
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-accent"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/></svg>
+						<CardTitle className="text-xl md:text-2xl font-bold">
+							ICU DoseCalc
+						</CardTitle>
 					</div>
 					<CardDescription className="text-primary-foreground/90 mt-1 text-sm">
 						Vasopressor & Inotrope Infusion Rate Calculator (50ml Syringe Pump)
@@ -560,6 +528,30 @@ export default function ICUDoseCalcPage() {
 					ICU DoseCalc | Verify all calculations before administration.
 				</CardFooter>
 			</Card>
+
+            {/* Drug Reference Section */}
+            <Card className="max-w-4xl mx-auto mt-8 shadow-lg rounded-lg border border-border overflow-hidden">
+                 <CardHeader className="bg-secondary text-secondary-foreground p-4">
+                     <CardTitle className="text-lg md:text-xl font-semibold">
+                         Vasopressor & Inotrope Reference
+                     </CardTitle>
+                     <CardDescription className="text-secondary-foreground/90 text-sm">
+                         Adult dose ranges and characteristics for common agents. Verify with local protocols.
+                     </CardDescription>
+                 </CardHeader>
+                 <CardContent className="p-0">
+                     {/* Add scrollable container with horizontal/vertical scroll and zoom */}
+                     <div className="overflow-auto touch-pan-x touch-pan-y" style={{ WebkitOverflowScrolling: 'touch' }}>
+                        <div className="p-4 min-w-[800px]"> {/* Ensure minimum width for table content */}
+                             <DrugReferenceTable />
+                        </div>
+                     </div>
+                 </CardContent>
+                 <CardFooter className="p-3 bg-muted/50 rounded-b-lg text-xs text-muted-foreground text-center border-t">
+					Reference Data | Always consult official resources and local protocols.
+				</CardFooter>
+            </Card>
+
 			{/* Toaster is already in layout.tsx */}
 		</div>
 	);
