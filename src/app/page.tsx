@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -99,7 +100,7 @@ export default function ICUDoseCalcPage() {
 			doseUnit: '',
 			drugAmount: undefined,
 			drugAmountUnit: undefined, // Set initial undefined
-			drugVolume: 50, // Default syringe volume
+			drugVolume: undefined, // Use standard formulation volume as default later
 		},
 	});
 
@@ -116,15 +117,16 @@ export default function ICUDoseCalcPage() {
 		if (drug) {
             // Reset dependent fields and set new defaults
             setValue('doseUnit', drug.dosing.unit);
-            setValue('drugAmount', drug.standardFormulation.amount);
+            setValue('drugAmount', drug.standardFormulation.amount); // Sets default amount
             setValue('drugAmountUnit', drug.standardFormulation.unit);
-            setValue('drugVolume', 50); // Reset to default 50ml
+            setValue('drugVolume', drug.standardFormulation.volume); // Reset to standard volume
             // Clear fields that need user input for the new drug
             setValue('dose', undefined);
             if (!drug.dosing.isWeightBased) {
                 setValue('weight', undefined); // Clear weight if not needed
             } else {
-                 setValue('weight', getValues('weight')); // Keep weight if needed and already entered
+                 // Keep weight if needed and already entered? This might be okay.
+                 setValue('weight', getValues('weight'));
             }
             // Clear previous results
             setCalculationResult(null);
@@ -137,7 +139,7 @@ export default function ICUDoseCalcPage() {
             setValue('doseUnit', '');
             setValue('drugAmount', undefined);
             setValue('drugAmountUnit', undefined);
-            setValue('drugVolume', 50);
+            setValue('drugVolume', undefined);
             setValue('dose', undefined);
             setValue('weight', undefined);
             setCalculationResult(null);
@@ -151,13 +153,19 @@ export default function ICUDoseCalcPage() {
 	const onSubmit = (data: CalculatorFormValues) => {
 		if (selectedDrug) {
 			try {
-				const { dose, weight, drugAmount, drugAmountUnit, drugVolume } = data;
+				// Ensure required values are numbers before calculation
+				const dose = data.dose!;
+				const weight = data.weight; // Can be undefined if not weight-based
+				const drugAmount = data.drugAmount!;
+				const drugAmountUnit = data.drugAmountUnit!;
+				const drugVolume = data.drugVolume!;
+
 
 				const calculation = selectedDrug.calculateRate(
 					dose,
-					weight,
+					weight, // Pass potentially undefined weight
 					drugAmount,
-                    drugAmountUnit, // Pass the selected unit
+                    drugAmountUnit,
 					drugVolume
 				);
 
@@ -285,7 +293,7 @@ export default function ICUDoseCalcPage() {
 												</p>
                                                 <Separator/>
 												<p>
-													<strong>Standard Prep (for 50ml):</strong>{' '}
+													<strong>Standard Prep (for {selectedDrug.standardFormulation.volume}ml):</strong>{' '}
 													<strong>{selectedDrug.standardFormulation.amount}{selectedDrug.standardFormulation.unit} in {selectedDrug.standardFormulation.volume}ml</strong>
 												</p>
                                                  <Separator/>
@@ -320,9 +328,10 @@ export default function ICUDoseCalcPage() {
 													step="0.1"
 													placeholder="Enter weight in kilograms"
 													{...field}
-													value={field.value ?? ''}
+													value={field.value ?? ''} // Controlled: Ensure value is never null/undefined for input
 													onChange={(e) => {
                                                         const value = e.target.value;
+                                                        // Convert empty string to undefined for validation/logic
                                                         field.onChange(value === '' ? undefined : parseFloat(value));
                                                     }}
 												/>
@@ -350,9 +359,10 @@ export default function ICUDoseCalcPage() {
 														step="any" // Allow decimals
 														placeholder="Enter dose value"
 														{...field}
-                                                        value={field.value ?? ''}
+                                                        value={field.value ?? ''} // Controlled
                                                         onChange={(e) => {
                                                             const value = e.target.value;
+                                                            // Convert empty string to undefined
                                                             field.onChange(value === '' ? undefined : parseFloat(value));
                                                         }}
 													/>
@@ -393,9 +403,10 @@ export default function ICUDoseCalcPage() {
                                                             step="any"
                                                             placeholder={`Std: ${selectedDrug.standardFormulation.amount}`}
                                                             {...field}
-                                                            value={field.value ?? ''}
+                                                            value={field.value ?? ''} // Controlled
                                                             onChange={(e) => {
                                                                 const value = e.target.value;
+                                                                // Convert empty string to undefined
                                                                 field.onChange(value === '' ? undefined : parseFloat(value));
                                                             }}
                                                         />
@@ -448,9 +459,10 @@ export default function ICUDoseCalcPage() {
                                                             step="1"
                                                             placeholder={`Std: ${selectedDrug.standardFormulation.volume}`}
                                                             {...field}
-                                                             value={field.value ?? ''}
+                                                             value={field.value ?? ''} // Controlled
                                                             onChange={(e) => {
                                                                 const value = e.target.value;
+                                                                // Convert empty string to undefined
                                                                 field.onChange(value === '' ? undefined : parseInt(value, 10));
                                                             }}
                                                         />
@@ -477,7 +489,7 @@ export default function ICUDoseCalcPage() {
 					</Form>
 
 					{/* Output Section */}
-					{calculationResult && selectedDrug && (
+					{calculationResult && selectedDrug && getValues('dose') !== undefined && ( // Ensure dose has a value before showing result
 						<div className="mt-8 p-4 border border-accent/30 rounded-md bg-secondary/30 space-y-4 shadow-inner">
 							<h3 className="text-lg font-semibold flex items-center gap-2 text-accent">
 								<FlaskConical className="h-5 w-5" /> Calculation Result
@@ -529,12 +541,12 @@ export default function ICUDoseCalcPage() {
                          <div className="flex items-center gap-2">
                               <AlertTriangle className="h-5 w-5" />
                               <span>Important Safety Notice</span>
+                               <Eye className="h-4 w-4 ml-auto group-data-[state=closed]:hidden" />
+                               <EyeOff className="h-4 w-4 ml-auto group-data-[state=open]:hidden" />
                          </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-4 bg-destructive/5">
                         <Alert variant="destructive" className="border-0 p-0">
-                            {/* <AlertTriangle className="h-4 w-4" /> We can remove this one if the trigger has it */}
-                            {/* <AlertTitle className="font-semibold">Important Safety Notice</AlertTitle> */}
                             <AlertDescription className="text-xs leading-relaxed text-destructive/90">
                                 This calculator is intended as an educational and decision-support tool only. It is <strong>NOT</strong> a substitute for professional medical judgment, clinical assessment, or institutional protocols. Always double-check calculations, verify drug concentrations and doses with the prepared syringe, and confirm with institutional guidelines and a qualified healthcare professional before administering any medication. The creators are not liable for any errors or clinical decisions made based on this tool. Standard concentrations are based on typical Egyptian market availability but may vary. Dose ranges provided are typical but may need adjustment based on clinical context and institutional guidelines. <strong>Final verification by the prescribing physician and administering nurse is mandatory.</strong>
                             </AlertDescription>
@@ -545,27 +557,21 @@ export default function ICUDoseCalcPage() {
 
 
             {/* Drug Reference Section - Collapsible */}
-            <Accordion type="single" collapsible className="w-full max-w-4xl mx-auto">
+            <Accordion type="single" collapsible className="w-full max-w-4xl mx-auto mb-8"> {/* Added mb-8 for spacing */}
                 <AccordionItem value="drug-reference" className="border border-border rounded-lg overflow-hidden shadow-lg">
                     <AccordionTrigger className="bg-secondary hover:bg-secondary/80 px-4 py-3 text-secondary-foreground font-semibold hover:no-underline">
                         <div className="flex items-center gap-2">
                             <BookOpen className="h-5 w-5" />
                             <span>Vasopressor & Inotrope Reference</span>
+                            <Eye className="h-4 w-4 ml-auto group-data-[state=closed]:hidden" />
+                            <EyeOff className="h-4 w-4 ml-auto group-data-[state=open]:hidden" />
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-0 bg-background">
                          <Card className="border-0 rounded-none shadow-none">
-                            {/* <CardHeader className="bg-secondary text-secondary-foreground p-4">
-                                <CardTitle className="text-lg md:text-xl font-semibold">
-                                    Vasopressor & Inotrope Reference
-                                </CardTitle>
-                                <CardDescription className="text-secondary-foreground/90 text-sm">
-                                    Adult dose ranges and characteristics for common agents. Verify with local protocols.
-                                </CardDescription>
-                            </CardHeader> */}
                             <CardContent className="p-0">
-                                {/* Add scrollable container with horizontal/vertical scroll and zoom */}
-                                <div className="overflow-auto touch-pan-x touch-pan-y" style={{ WebkitOverflowScrolling: 'touch' }}>
+                                {/* Scrollable container */}
+                                <div className="overflow-auto touch-pan-x touch-pan-y" style={{ WebkitOverflowScrolling: 'touch', maxHeight: '500px' }}> {/* Added maxHeight */}
                                     <div className="p-4 min-w-[800px]"> {/* Ensure minimum width for table content */}
                                         <DrugReferenceTable />
                                     </div>
@@ -584,3 +590,4 @@ export default function ICUDoseCalcPage() {
 		</div>
 	);
 }
+

@@ -1,3 +1,4 @@
+
 // src/schemas/calculatorSchema.ts
 import { z } from 'zod';
 import type { Drug } from '@/data/drugData'; // Use type import
@@ -31,7 +32,7 @@ export const createCalculatorSchema = (selectedDrug: Drug | null) => {
     drugAmountUnit: z.enum(['mg', 'mcg', 'units'], { required_error: 'Amount unit is required.' }),
     drugVolume: z.preprocess(
         (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
-         z.number({ required_error: 'Dilution volume is required.', invalid_type_error: 'Volume must be a number.' })
+         z.number({ required_error: 'Syringe volume is required.', invalid_type_error: 'Volume must be a number.' })
           .positive({ message: 'Volume must be positive.' })
           .int({ message: 'Volume must be a whole number.' }) // Typically syringe volumes are whole numbers
     ),
