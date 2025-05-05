@@ -51,9 +51,11 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
 import { Separator } from '@/components/ui/separator';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
+import { DrugReferenceTable } from '@/components/DrugReferenceTable'; // Import the new component
 import {
 	Calculator,
 	Syringe,
@@ -65,7 +67,8 @@ import {
 	CheckCircle,
 	Settings,
 	AlertCircle,
-} from 'lucide-react'; // Added Settings and AlertCircle
+	BookOpen, // Import BookOpen icon
+} from 'lucide-react';
 
 export default function ICUDoseCalcPage() {
 	const [selectedDrug, setSelectedDrug] = React.useState<Drug | null>(null);
@@ -199,14 +202,42 @@ export default function ICUDoseCalcPage() {
 		<div className="min-h-screen bg-background text-foreground p-4 md:p-8">
 			<Card className="max-w-2xl mx-auto shadow-lg rounded-lg border border-border overflow-hidden">
 				<CardHeader className="bg-primary text-primary-foreground p-4">
-					<div className="flex items-center gap-2">
-						{/* Syringe Icon SVG */}
-						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-accent"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/></svg>
-						<CardTitle className="text-2xl font-bold">
-							ICU DoseCalc
-						</CardTitle>
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-2">
+							{/* Syringe Icon SVG */}
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-accent"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/></svg>
+							<CardTitle className="text-xl md:text-2xl font-bold">
+								ICU DoseCalc
+							</CardTitle>
+						</div>
+                        {/* Drug Reference Table Dialog Trigger */}
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="bg-primary-foreground/10 hover:bg-primary-foreground/20 border-primary-foreground/50 text-primary-foreground"
+                                >
+                                    <BookOpen className="mr-1.5 h-4 w-4" /> Reference
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-none w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] h-[90vh]">
+                                <DialogHeader>
+                                    <DialogTitle>Vasopressor & Inotrope Reference</DialogTitle>
+                                    <DialogDescription>
+                                        Adult dose ranges and characteristics for common agents. Verify with local protocols.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <ScrollArea className="flex-grow h-[calc(90vh-150px)]"> {/* Adjust height as needed */}
+                                    <div className="p-1"> {/* Add padding inside scroll area */}
+                                        <DrugReferenceTable />
+                                    </div>
+                                </ScrollArea>
+                            </DialogContent>
+                        </Dialog>
 					</div>
-					<CardDescription className="text-primary-foreground/90 mt-1">
+					<CardDescription className="text-primary-foreground/90 mt-1 text-sm">
 						Vasopressor & Inotrope Infusion Rate Calculator (50ml Syringe Pump)
 					</CardDescription>
 				</CardHeader>
@@ -519,7 +550,7 @@ export default function ICUDoseCalcPage() {
 						<AlertTriangle className="h-4 w-4" />
 						<AlertTitle className="font-semibold">Important Safety Notice</AlertTitle>
 						<AlertDescription className="text-xs leading-relaxed">
-							This calculator is intended as an educational and decision-support tool only. It is <strong>NOT</strong> a substitute for professional medical judgment, clinical assessment, or institutional protocols. Always double-check calculations, verify drug concentrations and doses with the prepared syringe, and confirm with institutional guidelines and a qualified healthcare professional before administering any medication. The creators are not liable for any errors or clinical decisions made based on this tool. Standard concentrations are based on typical Egyptian market availability but may vary. <strong>Final verification by the prescribing physician and administering nurse is mandatory.</strong>
+							This calculator is intended as an educational and decision-support tool only. It is <strong>NOT</strong> a substitute for professional medical judgment, clinical assessment, or institutional protocols. Always double-check calculations, verify drug concentrations and doses with the prepared syringe, and confirm with institutional guidelines and a qualified healthcare professional before administering any medication. The creators are not liable for any errors or clinical decisions made based on this tool. Standard concentrations are based on typical Egyptian market availability but may vary. Dose ranges provided are typical but may need adjustment based on clinical context and institutional guidelines. <strong>Final verification by the prescribing physician and administering nurse is mandatory.</strong>
 						</AlertDescription>
 					</Alert>
 				</CardContent>
