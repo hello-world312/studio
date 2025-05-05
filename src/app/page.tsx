@@ -51,7 +51,8 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
+// Removed ScrollArea import as we'll use a simple div for scrolling
+// import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
@@ -222,18 +223,19 @@ export default function ICUDoseCalcPage() {
                                     <BookOpen className="mr-1.5 h-4 w-4" /> Reference
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-none w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] h-[90vh]">
-                                <DialogHeader>
+                             {/* Adjusted DialogContent for better scrolling/zooming on mobile */}
+                             <DialogContent className="max-w-none w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] h-[90vh] flex flex-col p-0">
+                                <DialogHeader className="p-6 pb-4">
                                     <DialogTitle>Vasopressor & Inotrope Reference</DialogTitle>
                                     <DialogDescription>
                                         Adult dose ranges and characteristics for common agents. Verify with local protocols.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <ScrollArea className="flex-grow h-[calc(90vh-150px)]"> {/* Adjust height as needed */}
-                                    <div className="p-1"> {/* Add padding inside scroll area */}
-                                        <DrugReferenceTable />
-                                    </div>
-                                </ScrollArea>
+                                {/* Replace ScrollArea with a div for overflow */}
+                                <div className="flex-grow overflow-auto p-6 pt-0">
+                                    {/* The DrugReferenceTable component already has internal overflow handling for the table itself */}
+                                    <DrugReferenceTable />
+                                </div>
                             </DialogContent>
                         </Dialog>
 					</div>
