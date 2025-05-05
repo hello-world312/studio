@@ -68,6 +68,8 @@ import {
     BookOpen,
     EyeOff,
     Eye,
+    Beaker, // Icon for concentration
+    Droplets, // Icon for volume
 } from 'lucide-react';
 
 export default function ICUDoseCalcPage() {
@@ -159,14 +161,16 @@ export default function ICUDoseCalcPage() {
 					drugVolume
 				);
 
-                // Alert if concentration differs from standard (only check if amount/unit/volume are modified from standard)
-                if (drugAmount !== selectedDrug.standardFormulation.amount ||
-                    drugAmountUnit !== selectedDrug.standardFormulation.unit ||
-                    drugVolume !== 50) // Check against the standard 50ml
-                {
+                // Alert if concentration differs from standard
+                const isStandardConcentration =
+                    drugAmount === selectedDrug.standardFormulation.amount &&
+                    drugAmountUnit === selectedDrug.standardFormulation.unit &&
+                    drugVolume === selectedDrug.standardFormulation.volume;
+
+                if (!isStandardConcentration) {
                     toast({
                         title: "Concentration Alert",
-                        description: `Using non-standard concentration: ${drugAmount}${drugAmountUnit} in ${drugVolume}ml. Standard is ${selectedDrug.standardFormulation.amount}${selectedDrug.standardFormulation.unit} in 50ml. Please verify preparation.`,
+                        description: `Using non-standard preparation: ${drugAmount}${drugAmountUnit} in ${drugVolume}ml. Standard is ${selectedDrug.standardFormulation.amount}${selectedDrug.standardFormulation.unit} in ${selectedDrug.standardFormulation.volume}ml. Please verify preparation.`,
                         variant: "default", // Use default or a custom variant if needed
                         duration: 8000, // Longer duration for important warnings
                     });
@@ -211,14 +215,14 @@ export default function ICUDoseCalcPage() {
 						</CardTitle>
 					</div>
 					<CardDescription className="text-primary-foreground/90 mt-1 text-sm">
-						Vasopressor & Inotrope Infusion Rate Calculator (50ml Syringe Pump)
+						Vasopressor & Inotrope Infusion Rate Calculator
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="p-6 space-y-6">
 					<Form {...form}>
 						<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 							{/* Drug Selection */}
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+							<div className="grid grid-cols-1 md:grid-cols-[2fr,auto] gap-4 items-end">
 								<FormField
 									control={control}
 									name="drug"
@@ -262,9 +266,9 @@ export default function ICUDoseCalcPage() {
 												type="button"
 												variant="outline"
 												size="sm"
-												className="w-full md:w-auto"
+												className="w-full md:w-auto mt-1" // Adjusted margin
 											>
-												<Info className="mr-2 h-4 w-4" /> Drug Info
+												<Info className="mr-2 h-4 w-4" /> Info
 											</Button>
 										</DialogTrigger>
 										<DialogContent className="sm:max-w-[480px]">
@@ -282,7 +286,7 @@ export default function ICUDoseCalcPage() {
                                                 <Separator/>
 												<p>
 													<strong>Standard Prep (for 50ml):</strong>{' '}
-													<strong>{selectedDrug.standardFormulation.amount}{selectedDrug.standardFormulation.unit} in 50ml</strong>
+													<strong>{selectedDrug.standardFormulation.amount}{selectedDrug.standardFormulation.unit} in {selectedDrug.standardFormulation.volume}ml</strong>
 												</p>
                                                  <Separator/>
 												<p>
@@ -369,110 +373,103 @@ export default function ICUDoseCalcPage() {
 								</div>
 							)}
 
-							{/* Concentration & Syringe Volume Override */}
-							{selectedDrug && (
-								<Accordion type="single" collapsible className="w-full pt-2">
-									<AccordionItem value="concentration-override" className="border rounded-md px-3">
-										<AccordionTrigger className="text-sm font-medium hover:no-underline py-3">
-											<Settings className="mr-2 h-4 w-4 text-accent" /> Override Standard Prep (Optional)
-										</AccordionTrigger>
-										<AccordionContent className="space-y-4 pt-2 pb-4">
-											<Alert variant="default" className="bg-secondary/50 border-secondary-foreground/20">
-												<AlertCircle className="h-4 w-4 text-secondary-foreground" />
-												<AlertTitle className="font-semibold">Standard Preparation</AlertTitle>
-												<AlertDescription className="text-secondary-foreground/80">
-													The default is{' '}
-													<strong>
-														{selectedDrug.standardFormulation.amount}{selectedDrug.standardFormulation.unit} in 50ml
-													</strong>. Edit below only if your preparation differs.
-												</AlertDescription>
-											</Alert>
-											<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-												{/* Drug Amount */}
-												<FormField
-													control={control}
-													name="drugAmount"
-													render={({ field }) => (
-														<FormItem>
-															<FormLabel className="text-xs">Drug Amount</FormLabel>
-															<FormControl>
-																<Input
-																	type="number"
-																	step="any"
-																	placeholder="e.g., 4"
-																	{...field}
-                                                                    value={field.value ?? ''}
-                                                                    onChange={(e) => {
-                                                                        const value = e.target.value;
-                                                                        field.onChange(value === '' ? undefined : parseFloat(value));
-                                                                    }}
-																/>
-															</FormControl>
-															<FormMessage />
-														</FormItem>
-													)}
-												/>
-												{/* Drug Amount Unit */}
-												<FormField
-													control={control}
-													name="drugAmountUnit"
-													render={({ field }) => (
-														<FormItem>
-															<FormLabel className="text-xs">Amount Unit</FormLabel>
-															<Select
-																onValueChange={field.onChange}
-																value={field.value} // Controlled component
-															>
-																<FormControl>
-																	<SelectTrigger>
-																		<SelectValue placeholder="Unit" />
-																	</SelectTrigger>
-																</FormControl>
-																<SelectContent>
-																	{/* Allow selection relevant to the drug type */}
-                                                                    {['mg', 'mcg', 'units'].map(unit => (
-                                                                        <SelectItem key={unit} value={unit}>{unit}</SelectItem>
-                                                                    ))}
+                             {/* Preparation / Concentration Fields */}
+                             {selectedDrug && (
+                                <div>
+                                    <FormLabel className="flex items-center gap-1 font-semibold mb-2">
+                                         <Beaker className="h-4 w-4 text-accent" /> Syringe Preparation
+                                    </FormLabel>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end p-4 border rounded-md bg-muted/30">
+                                        {/* Drug Amount */}
+                                        <FormField
+                                            control={control}
+                                            name="drugAmount"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className="text-xs">Drug Amount</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            type="number"
+                                                            step="any"
+                                                            placeholder={`Std: ${selectedDrug.standardFormulation.amount}`}
+                                                            {...field}
+                                                            value={field.value ?? ''}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                field.onChange(value === '' ? undefined : parseFloat(value));
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        {/* Drug Amount Unit */}
+                                        <FormField
+                                            control={control}
+                                            name="drugAmountUnit"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className="text-xs">Unit</FormLabel>
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        value={field.value} // Controlled component
+                                                    >
+                                                        <FormControl>
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Unit" />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            {/* Allow selection relevant to the drug type */}
+                                                            {['mg', 'mcg', 'units'].map(unit => (
+                                                                <SelectItem key={unit} value={unit}>{unit}</SelectItem>
+                                                            ))}
 
-																</SelectContent>
-															</Select>
-															<FormMessage />
-														</FormItem>
-													)}
-												/>
-												{/* Syringe Volume */}
-												<FormField
-													control={control}
-													name="drugVolume"
-													render={({ field }) => (
-														<FormItem>
-															<FormLabel className="text-xs">in Volume (ml)</FormLabel>
-															<FormControl>
-																<Input
-																	type="number"
-																	step="1"
-																	placeholder="e.g., 50"
-																	{...field}
-																	 value={field.value ?? ''}
-                                                                    onChange={(e) => {
-                                                                        const value = e.target.value;
-                                                                        field.onChange(value === '' ? undefined : parseInt(value, 10));
-                                                                    }}
-																/>
-															</FormControl>
-															<FormMessage />
-														</FormItem>
-													)}
-												/>
-											</div>
-										</AccordionContent>
-									</AccordionItem>
-								</Accordion>
-							)}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        {/* Syringe Volume */}
+                                        <FormField
+                                            control={control}
+                                            name="drugVolume"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel className="text-xs flex items-center gap-1">
+                                                        <Droplets className="h-3 w-3 text-accent/80" />
+                                                        in Volume (ml)
+                                                        </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            type="number"
+                                                            step="1"
+                                                            placeholder={`Std: ${selectedDrug.standardFormulation.volume}`}
+                                                            {...field}
+                                                             value={field.value ?? ''}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                field.onChange(value === '' ? undefined : parseInt(value, 10));
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1 px-1">
+                                        Standard prep: {selectedDrug.standardFormulation.amount}{selectedDrug.standardFormulation.unit} in {selectedDrug.standardFormulation.volume}ml. Adjust if different.
+                                    </p>
+                                </div>
+                             )}
+
 
 							{/* Calculation Button */}
                             {selectedDrug && (
-							    <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={!isValid}>
+							    <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground mt-4" disabled={!isValid}>
 								    <Calculator className="mr-2 h-4 w-4" /> Calculate Infusion Rate
 							    </Button>
                             )}
